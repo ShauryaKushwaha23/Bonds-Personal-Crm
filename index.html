@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bonds — Personal CRM</title>
+<meta name="description" content="Manage your relationships like a professional." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤝</text></svg>" />
+<style>
+/* ============================================================
+   RESET & VARIABLES
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --p50:#EEEDFE;--p100:#CECBF6;--p200:#AFA9EC;--p400:#7F77DD;--p600:#534AB7;--p800:#3C3489;--p900:#26215C;
+  --t50:#E1F5EE;--t400:#1D9E75;--t600:#0F6E56;
+  --a50:#FAEEDA;--a400:#EF9F27;--a600:#BA7517;--a800:#633806;
+  --r50:#FCEBEB;--r400:#E24B4A;--r800:#791F1F;
+  --c50:#FAECE7;--c100:#F5C4B3;--c400:#D85A30;--c600:#993C1D;--c800:#712B13;
+  --pk50:#FBEAF0;--pk800:#72243E;
+  --b50:#E6F1FB;--b800:#0C447C;
+  --g50:#EAF3DE;--g800:#27500A;
+  --gray50:#F7F6F3;--gray100:#F1EFE8;--gray200:#D3D1C7;--gray400:#888780;--gray600:#5F5E5A;--gray800:#444441;--gray900:#2C2C2A;
+  --bg:#ffffff;--bg2:#F7F6F3;--bg3:#F1EFE8;
+  --border1:rgba(0,0,0,0.07);--border2:rgba(0,0,0,0.13);--border3:rgba(0,0,0,0.22);
+  --tx1:#1a1a18;--tx2:#5F5E5A;--tx3:#888780;
+  --r-sm:6px;--r-md:8px;--r-lg:12px;--r-xl:16px;--r-pill:999px;
+  --sh1:0 1px 4px rgba(0,0,0,0.06);--sh2:0 4px 16px rgba(83,74,183,.10);--sh3:0 8px 32px rgba(83,74,183,.16);
+  --sidebar:230px;--topbar:58px;--ease:0.15s ease;
+}
+html,body{height:100%;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:14px;line-height:1.5;color:var(--tx1);background:var(--bg3);-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+button,input,select,textarea{font-family:inherit}
+a{color:var(--p600);text-decoration:none}a:hover{text-decoration:underline}
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+#app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar);background:var(--bg);border-right:.5px solid var(--border1);display:flex;flex-direction:column;flex-shrink:0}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.content{flex:1;overflow-y:auto;padding:22px 26px}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+.logo-wrap{padding:18px 16px 14px;border-bottom:.5px solid var(--border1);display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:var(--p50);border-radius:var(--r-md);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.logo-name{font-size:15px;font-weight:700;color:var(--tx1);line-height:1.1}
+.logo-tag{font-size:10px;color:var(--tx3)}
+.nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-section{margin-bottom:20px}
+.nav-label{font-size:10px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;padding:0 8px 6px}
+.nav-btn{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:var(--r-md);cursor:pointer;font-size:13px;color:var(--tx2);border:none;background:transparent;width:100%;text-align:left;transition:all var(--ease);margin-bottom:1px;position:relative}
+.nav-btn:hover{background:var(--bg2);color:var(--tx1)}
+.nav-btn.active{background:var(--p50);color:var(--p600);font-weight:600}
+.nav-btn svg{width:16px;height:16px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.nbadge{margin-left:auto;font-size:10px;font-weight:700;padding:2px 7px;border-radius:var(--r-pill);flex-shrink:0}
+.nbadge.orange{background:var(--c50);color:var(--c600)}
+.nbadge.purple{background:var(--p50);color:var(--p800)}
+.sidebar-footer{padding:10px 8px;border-top:.5px solid var(--border1)}
+
+/* ============================================================
+   TOPBAR
+   ============================================================ */
+.topbar{height:var(--topbar);background:var(--bg);border-bottom:.5px solid var(--border1);display:flex;align-items:center;gap:12px;padding:0 22px;flex-shrink:0}
+.topbar-title{font-size:16px;font-weight:700;color:var(--tx1);flex:1}
+.search-wrap{position:relative}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--tx3);width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.search-input{border:.5px solid var(--border2);border-radius:var(--r-md);padding:7px 10px 7px 30px;font-size:13px;color:var(--tx1);background:var(--bg2);outline:none;width:220px;transition:border-color var(--ease),width var(--ease)}
+.search-input:focus{border-color:var(--p400);width:260px}
+.btn-primary{background:var(--p600);color:#fff;border:none;border-radius:var(--r-md);padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:background var(--ease),transform .1s}
+.btn-primary:hover{background:var(--p800)}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary.sm{padding:6px 12px;font-size:12px}
+.btn-ghost{background:none;border:.5px solid var(--border2);border-radius:var(--r-md);padding:7px 14px;font-size:13px;cursor:pointer;color:var(--tx1);transition:background var(--ease)}
+.btn-ghost:hover{background:var(--bg2)}
+.btn-icon{border:.5px solid var(--border2);background:none;border-radius:var(--r-md);padding:6px 10px;cursor:pointer;font-size:12px;color:var(--tx2);display:flex;align-items:center;gap:5px;transition:all var(--ease)}
+.btn-icon:hover{background:var(--bg2);color:var(--tx1)}
+.btn-icon svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-danger{background:var(--r50);color:var(--r800);border:.5px solid rgba(226,75,74,.2);border-radius:var(--r-md);padding:6px 10px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all var(--ease)}
+.btn-danger:hover{background:rgba(226,75,74,.15)}
+
+/* ============================================================
+   PANELS
+   ============================================================ */
+.panel{display:none}.panel.active{display:block}
+
+/* ============================================================
+   STATS ROW
+   ============================================================ */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:var(--bg2);border-radius:var(--r-md);padding:16px}
+.stat-icon{font-size:22px;margin-bottom:8px}
+.stat-label{font-size:11px;color:var(--tx2);margin-bottom:4px;font-weight:500}
+.stat-val{font-size:28px;font-weight:700;color:var(--tx1);line-height:1;margin-bottom:4px}
+.stat-sub{font-size:11px;color:var(--tx3)}
+
+/* ============================================================
+   TWO COL
+   ============================================================ */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
+.widget{background:var(--bg);border:.5px solid var(--border1);border-radius:var(--r-lg);padding:16px 18px}
+.w-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.w-title{font-size:13px;font-weight:700;color:var(--tx1)}
+.w-link{font-size:12px;color:var(--p600);cursor:pointer;border:none;background:none;padding:0}
+.w-link:hover{text-decoration:underline}
+
+/* ============================================================
+   CONTACT CARDS
+   ============================================================ */
+.contacts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.contact-card{background:var(--bg);border:.5px solid var(--border1);border-radius:var(--r-lg);padding:16px;cursor:pointer;transition:all var(--ease);position:relative;overflow:hidden}
+.contact-card:hover{border-color:var(--border3);box-shadow:var(--sh2);transform:translateY(-1px)}
+.contact-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r-lg) var(--r-lg) 0 0}
+.contact-card.hot::before{background:var(--t400)}
+.contact-card.warm::before{background:var(--a400)}
+.contact-card.cold::before{background:var(--r400)}
+.c-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin-bottom:10px;flex-shrink:0}
+.c-name{font-size:14px;font-weight:600;color:var(--tx1);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-role{font-size:12px;color:var(--tx2);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tags-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:var(--r-pill);text-transform:capitalize}
+.tag-friend{background:var(--t50);color:var(--t600)}
+.tag-work{background:var(--p50);color:var(--p800)}
+.tag-family{background:var(--a50);color:var(--a800)}
+.tag-mentor{background:var(--pk50);color:var(--pk800)}
+.tag-client{background:var(--b50);color:var(--b800)}
+.c-footer{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--tx3)}
+.warmth-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:var(--r-pill)}
+.warmth-pill.hot{background:var(--t50);color:var(--t600)}
+.warmth-pill.warm{background:var(--a50);color:var(--a600)}
+.warmth-pill.cold{background:var(--r50);color:var(--r800)}
+
+/* ============================================================
+   FILTER BAR
+   ============================================================ */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.filter-btn{border:.5px solid var(--border2);background:var(--bg);border-radius:var(--r-pill);padding:5px 14px;font-size:12px;font-weight:500;cursor:pointer;color:var(--tx2);transition:all var(--ease)}
+.filter-btn:hover{background:var(--bg2);color:var(--tx1)}
+.filter-btn.active{background:var(--p50);color:var(--p600);border-color:var(--p200)}
+
+/* ============================================================
+   REMINDER ITEMS
+   ============================================================ */
+.reminder-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:.5px solid var(--border1)}
+.reminder-item:last-child{border-bottom:none}
+.r-dot{width:8px;height:8px;border-radius:50%;margin-top:5px;flex-shrink:0}
+.r-info{flex:1;min-width:0}
+.r-title{font-size:13px;font-weight:500;color:var(--tx1)}
+.r-meta{font-size:11px;color:var(--tx2);margin-top:2px}
+.r-date{font-size:11px;color:var(--tx3);flex-shrink:0}
+.r-done{opacity:.45}
+.r-done .r-title{text-decoration:line-through}
+
+/* ============================================================
+   BIRTHDAY ITEMS
+   ============================================================ */
+.bday-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--border1);cursor:pointer;border-radius:var(--r-sm);transition:background var(--ease)}
+.bday-item:last-child{border-bottom:none}
+.bday-item:hover{background:var(--bg2);padding-left:5px;padding-right:5px}
+.bday-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.bday-info{flex:1;min-width:0}
+.bday-name{font-size:13px;font-weight:600;color:var(--tx1)}
+.bday-date{font-size:11px;color:var(--tx2)}
+.bday-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:var(--r-pill);flex-shrink:0}
+.bday-badge.soon{background:var(--c50);color:var(--c600)}
+.bday-badge.upcoming{background:var(--p50);color:var(--p800)}
+.bday-badge.far{background:var(--gray100);color:var(--gray800)}
+
+/* ============================================================
+   TIMELINE / MEETINGS
+   ============================================================ */
+.timeline{position:relative;padding-left:24px}
+.timeline::before{content:'';position:absolute;left:7px;top:8px;bottom:0;width:1.5px;background:var(--border2)}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-item:last-child{margin-bottom:0}
+.tl-dot{width:14px;height:14px;border-radius:50%;background:var(--p600);position:absolute;left:-20px;top:10px;border:2.5px solid var(--bg);box-shadow:0 0 0 1.5px var(--p200)}
+.tl-card{background:var(--bg);border:.5px solid var(--border1);border-radius:var(--r-md);padding:11px 13px;cursor:pointer;transition:all var(--ease)}
+.tl-card:hover{border-color:var(--border2);box-shadow:var(--sh1)}
+.tl-who{display:flex;align-items:center;gap:7px;margin-bottom:4px}
+.tl-who-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+.tl-title{font-size:13px;font-weight:600;color:var(--tx1)}
+.tl-sub{font-size:12px;color:var(--tx2);margin-top:2px}
+.tl-notes{font-size:11px;color:var(--tx3);margin-top:5px;font-style:italic}
+.tl-time{font-size:11px;color:var(--tx3);margin-top:5px}
+
+/* ============================================================
+   FOLLOW-UP ITEMS
+   ============================================================ */
+.fu-item{background:var(--bg);border:.5px solid var(--border1);border-left-width:3px;border-radius:var(--r-lg);padding:13px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;transition:box-shadow var(--ease)}
+.fu-item:hover{box-shadow:var(--sh1)}
+.fu-item.urgent{border-left-color:var(--r400)}
+.fu-item.medium{border-left-color:var(--a400)}
+.fu-item.mild{border-left-color:var(--t400)}
+.fu-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.fu-info{flex:1;min-width:0}
+.fu-name{font-size:13px;font-weight:600;color:var(--tx1)}
+.fu-reason{font-size:12px;color:var(--tx2);margin-top:2px}
+.fu-actions{display:flex;gap:6px;flex-shrink:0}
+
+/* ============================================================
+   INSIGHTS
+   ============================================================ */
+.insights-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.insight-card{background:var(--bg);border:.5px solid var(--border1);border-radius:var(--r-lg);padding:16px}
+.insight-icon{font-size:24px;margin-bottom:10px}
+.insight-title{font-size:13px;font-weight:700;color:var(--tx1);margin-bottom:5px}
+.insight-body{font-size:12px;color:var(--tx2);line-height:1.6}
+
+/* ============================================================
+   HEALTH BAR
+   ============================================================ */
+.health-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--border1);cursor:pointer;transition:background var(--ease);border-radius:var(--r-sm)}
+.health-row:last-child{border-bottom:none}
+.health-row:hover{background:var(--bg2);padding-left:5px;padding-right:5px}
+.h-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.h-info{flex:1;min-width:0}
+.h-name{font-size:13px;font-weight:500;color:var(--tx1);display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.h-label{font-size:11px;font-weight:700}
+.h-bar{height:5px;background:var(--bg2);border-radius:3px;overflow:hidden}
+.h-fill{height:100%;border-radius:3px}
+
+/* ============================================================
+   CONTACT DETAIL
+   ============================================================ */
+.back-btn{background:none;border:none;color:var(--p600);font-size:13px;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;gap:5px;font-weight:600;padding:0}
+.back-btn:hover{color:var(--p800)}
+.detail-card{background:var(--bg);border:.5px solid var(--border1);border-radius:var(--r-xl);overflow:hidden}
+.detail-hdr{background:var(--p50);padding:22px;display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.detail-av{width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;border:3px solid rgba(255,255,255,.7);flex-shrink:0}
+.detail-hdr-info{flex:1;min-width:0}
+.detail-name{font-size:20px;font-weight:700;color:var(--p900);margin-bottom:2px}
+.detail-role{font-size:13px;color:var(--p600);margin-bottom:8px}
+.detail-hdr-actions{display:flex;gap:6px;flex-wrap:wrap;margin-left:auto}
+.detail-body{padding:20px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.d-section{margin-bottom:18px}
+.d-section:last-child{margin-bottom:0}
+.d-section-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin-bottom:10px;padding-bottom:7px;border-bottom:.5px solid var(--border1)}
+.info-row{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--tx1);padding:5px 0}
+.info-row svg{width:14px;height:14px;stroke:var(--tx3);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.w-bar-label{font-size:13px;font-weight:600;display:flex;justify-content:space-between;margin-bottom:6px}
+.w-bar{height:7px;background:var(--bg2);border-radius:4px;overflow:hidden;margin-bottom:4px}
+.w-fill{height:100%;border-radius:4px}
+.notes-text{font-size:13px;color:var(--tx2);line-height:1.7;white-space:pre-wrap}
+.meeting-entry{padding:9px 0;border-bottom:.5px solid var(--border1)}
+.meeting-entry:last-child{border-bottom:none}
+.me-title{font-size:13px;font-weight:600;color:var(--tx1)}
+.me-date{font-size:11px;color:var(--tx2);margin-top:2px}
+.me-notes{font-size:12px;color:var(--tx3);font-style:italic;margin-top:4px}
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+.modal-bd{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;z-index:500;padding:16px}
+.modal-bd.open{display:flex}
+.modal{background:var(--bg);border-radius:var(--r-xl);padding:24px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;border:.5px solid var(--border2);box-shadow:var(--sh3);animation:modal-in .2s ease}
+@keyframes modal-in{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-size:16px;font-weight:700;color:var(--tx1)}
+.modal-close{background:none;border:none;cursor:pointer;color:var(--tx2);font-size:20px;padding:2px 4px;border-radius:var(--r-sm);transition:all var(--ease);line-height:1}
+.modal-close:hover{background:var(--bg2);color:var(--tx1)}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:12px;font-weight:700;color:var(--tx2);margin-bottom:5px}
+.form-input,.form-select,.form-textarea{width:100%;border:.5px solid var(--border2);border-radius:var(--r-md);padding:8px 11px;font-size:13px;color:var(--tx1);background:var(--bg);outline:none;transition:border-color var(--ease)}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--p400);box-shadow:0 0 0 3px rgba(83,74,183,.08)}
+.form-textarea{resize:vertical;min-height:90px;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tag-checks{display:flex;flex-wrap:wrap;gap:6px}
+.tag-check{display:none}
+.tag-check-label{cursor:pointer;font-size:12px;font-weight:700;padding:4px 12px;border-radius:var(--r-pill);border:.5px solid var(--border2);color:var(--tx2);transition:all var(--ease);user-select:none}
+.tag-check:checked+.tag-check-label{background:var(--p50);color:var(--p800);border-color:var(--p200)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:.5px solid var(--border1)}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--gray900);color:#f0efe8;padding:11px 18px;border-radius:var(--r-md);font-size:13px;font-weight:500;z-index:1000;display:flex;align-items:center;gap:8px;box-shadow:var(--sh3);opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+.toast-icon{color:#4ade80}
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty{text-align:center;padding:50px 20px;color:var(--tx3)}
+.empty-icon{font-size:44px;margin-bottom:12px;display:block}
+.empty p{font-size:13px}
+
+/* ============================================================
+   PAGE UTILS
+   ============================================================ */
+.page-desc{font-size:13px;color:var(--tx2);line-height:1.7;margin-bottom:16px}
+.page-top{display:flex;justify-content:flex-end;margin-bottom:14px}
+.section-label{font-size:11px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 10px}
+
+/* ============================================================
+   RESPONSIVE TWEAKS
+   ============================================================ */
+@media(max-width:900px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .two-col{grid-template-columns:1fr}
+  .insights-grid{grid-template-columns:repeat(2,1fr)}
+  .detail-body{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  :root{--sidebar:0px}
+  .sidebar{display:none}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .insights-grid{grid-template-columns:1fr}
+  .content{padding:14px}
+}
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="logo-wrap">
+      <div class="logo-icon">🤝</div>
+      <div>
+        <div class="logo-name">Bonds</div>
+        <div class="logo-tag">Personal CRM</div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Overview</div>
+        <button class="nav-btn active" data-panel="dashboard">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Dashboard
+        </button>
+        <button class="nav-btn" data-panel="contacts">
+          <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Contacts
+          <span class="nbadge purple" id="nb-contacts">0</span>
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Stay in Touch</div>
+        <button class="nav-btn" data-panel="followups">
+          <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Follow-ups
+          <span class="nbadge orange" id="nb-followups">0</span>
+        </button>
+        <button class="nav-btn" data-panel="reminders">
+          <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Reminders
+          <span class="nbadge orange" id="nb-reminders">0</span>
+        </button>
+        <button class="nav-btn" data-panel="birthdays">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><path d="M12 3a3 3 0 1 0 0 6"/><path d="M8 7H5"/><path d="M19 7h-3"/><path d="M12 3V1"/></svg>
+          Birthdays
+        </button>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-label">Grow</div>
+        <button class="nav-btn" data-panel="meetings">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Meetings
+        </button>
+        <button class="nav-btn" data-panel="insights">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          Insights
+        </button>
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <button class="nav-btn" onclick="showToast('Settings coming soon!')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+        Settings
+      </button>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbar-title">Dashboard</div>
+      <div class="search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" type="text" placeholder="Search contacts…" id="global-search" oninput="onSearch(this.value)">
+      </div>
+      <button class="btn-primary" onclick="openAddContact()">
+        <svg style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add contact
+      </button>
+    </div>
+
+    <div class="content">
+
+      <!-- ==================== DASHBOARD ==================== -->
+      <div class="panel active" id="panel-dashboard">
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-label">Total contacts</div><div class="stat-val" id="s-total">0</div><div class="stat-sub">in your network</div></div>
+          <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-label">Active relationships</div><div class="stat-val" id="s-active">0</div><div class="stat-sub">touched in 30 days</div></div>
+          <div class="stat-card"><div class="stat-icon">❄️</div><div class="stat-label">Needs attention</div><div class="stat-val" id="s-cold">0</div><div class="stat-sub">60+ days silent</div></div>
+          <div class="stat-card"><div class="stat-icon">🎂</div><div class="stat-label">Birthdays soon</div><div class="stat-val" id="s-bdays">0</div><div class="stat-sub">within 30 days</div></div>
+        </div>
+        <div class="two-col">
+          <div class="widget">
+            <div class="w-header"><span class="w-title">Follow-up suggestions</span><button class="w-link" onclick="goPanel('followups')">View all</button></div>
+            <div id="dash-followups"></div>
+          </div>
+          <div class="widget">
+            <div class="w-header"><span class="w-title">Upcoming reminders</span><button class="w-link" onclick="goPanel('reminders')">View all</button></div>
+            <div id="dash-reminders"></div>
+          </div>
+        </div>
+        <div class="two-col">
+          <div class="widget">
+            <div class="w-header"><span class="w-title">Recent activity</span></div>
+            <div class="timeline" id="dash-timeline"></div>
+          </div>
+          <div class="widget">
+            <div class="w-header"><span class="w-title">Upcoming birthdays</span><button class="w-link" onclick="goPanel('birthdays')">View all</button></div>
+            <div id="dash-birthdays"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== CONTACTS ==================== -->
+      <div class="panel" id="panel-contacts">
+        <div class="filter-bar">
+          <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-btn" onclick="setFilter('friend',this)">Friends</button>
+          <button class="filter-btn" onclick="setFilter('work',this)">Work</button>
+          <button class="filter-btn" onclick="setFilter('family',this)">Family</button>
+          <button class="filter-btn" onclick="setFilter('mentor',this)">Mentors</button>
+          <button class="filter-btn" onclick="setFilter('client',this)">Clients</button>
+        </div>
+        <div class="contacts-grid" id="contacts-grid"></div>
+      </div>
+
+      <!-- ==================== FOLLOW-UPS ==================== -->
+      <div class="panel" id="panel-followups">
+        <p class="page-desc">These contacts haven't heard from you in a while. A quick message goes a long way.</p>
+        <div id="followups-list"></div>
+      </div>
+
+      <!-- ==================== REMINDERS ==================== -->
+      <div class="panel" id="panel-reminders">
+        <div class="page-top">
+          <button class="btn-primary sm" onclick="openAddReminder()">
+            <svg style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add reminder
+          </button>
+        </div>
+        <div id="reminders-list"></div>
+      </div>
+
+      <!-- ==================== BIRTHDAYS ==================== -->
+      <div class="panel" id="panel-birthdays">
+        <p class="page-desc">Never forget a birthday. Add them in a contact's profile.</p>
+        <div class="widget"><div id="birthdays-list"></div></div>
+      </div>
+
+      <!-- ==================== MEETINGS ==================== -->
+      <div class="panel" id="panel-meetings">
+        <div class="page-top">
+          <button class="btn-primary sm" onclick="openAddMeeting()">
+            <svg style="width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Log meeting
+          </button>
+        </div>
+        <div class="timeline" id="meetings-list"></div>
+      </div>
+
+      <!-- ==================== INSIGHTS ==================== -->
+      <div class="panel" id="panel-insights">
+        <div class="insights-grid" id="insights-grid"></div>
+        <div class="widget">
+          <div class="w-header"><span class="w-title">Relationship health — full network</span></div>
+          <div id="health-list"></div>
+        </div>
+      </div>
+
+      <!-- ==================== CONTACT DETAIL ==================== -->
+      <div class="panel" id="panel-detail">
+        <button class="back-btn" onclick="goPanel('contacts')">
+          <svg style="width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+          Back to contacts
+        </button>
+        <div id="detail-content"></div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="modal-bd" id="modal-bd" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-body"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toast-msg"></span>
+</div>
+
+<script>
+/* ============================================================
+   BONDS CRM — Main Script
+   All data persists in localStorage. Edit the SEED data
+   below to customise your starting contacts.
+   ============================================================ */
+
+/* ---- SEED DATA (edit these to personalise) ---- */
+const SEED_CONTACTS = [
+  {id:1,name:'Priya Sharma',role:'Senior PM at Zomato',email:'priya@zomato.com',phone:'+91 98765 43210',company:'Zomato',linkedin:'priya-sharma',tags:['work','mentor'],birthday:'03-15',lastContact:'2025-06-10',notes:'Met at ProductCon 2024. Incredible product instinct. Follow up on her course recommendation.',meetings:[{id:1,date:'2025-06-10',title:'Career advice chat',notes:'Discussed PM roadmap. She suggested a system design course.'},{id:2,date:'2025-05-20',title:'Coffee at Connaught Place',notes:'Shared her Zomato PM journey stories.'}],warmth:90},
+  {id:2,name:'Rohan Mehta',role:'Co-founder at FoundLabs',email:'rohan@foundlabs.io',phone:'+91 87654 32109',company:'FoundLabs',linkedin:'rohan-mehta',tags:['work','friend'],birthday:'07-22',lastContact:'2025-06-01',notes:'Brilliant technical mind. Exploring edtech startup ideas together.',meetings:[{id:1,date:'2025-06-01',title:'Startup idea session',notes:'Micro-learning in vernacular languages — a promising angle.'}],warmth:70},
+  {id:3,name:'Ananya Krishnan',role:'UX Designer at Adobe',email:'ananya.k@adobe.com',phone:'+91 76543 21098',company:'Adobe',linkedin:'ananya-k',tags:['work'],birthday:'11-30',lastContact:'2025-03-15',notes:'Incredible portfolio. Her Figma plugin work is inspiring. Should reconnect.',meetings:[],warmth:20},
+  {id:4,name:'Vikram Nair',role:'Dad',email:'vikram@home.com',phone:'+91 98001 23456',company:'Retired',linkedin:'',tags:['family'],birthday:'05-12',lastContact:'2025-06-18',notes:'Call every Sunday. Loves cricket updates.',meetings:[],warmth:95},
+  {id:5,name:'Sneha Patel',role:'ML Researcher at IIT-B',email:'sneha.p@iitb.ac.in',phone:'+91 90909 08080',company:'IIT Bombay',linkedin:'sneha-patel-ml',tags:['work','friend'],birthday:'08-05',lastContact:'2025-04-20',notes:'Working on LLM fine-tuning. Potential research collaboration.',meetings:[{id:1,date:'2025-04-20',title:'Research discussion',notes:'RLHF paper deep-dive. Fascinating reward modelling approach.'}],warmth:45},
+  {id:6,name:'Arjun Kapoor',role:'Investor at Sequoia',email:'arjun@sequoia.com',phone:'+91 98111 00001',company:'Sequoia Capital',linkedin:'arjun-k',tags:['work','mentor','client'],birthday:'02-28',lastContact:'2025-02-10',notes:'Wants traction metrics before next meeting. Warm intro via Priya.',meetings:[{id:1,date:'2025-02-10',title:'Pitch meeting',notes:'Good feedback. Wants 3 months growth data.'},{id:2,date:'2025-01-05',title:'Intro call',notes:'Strong early interest in the vertical.'}],warmth:15},
+  {id:7,name:'Meera Joshi',role:'Head of Marketing, Swiggy',email:'meera.j@swiggy.com',phone:'+91 87001 77777',company:'Swiggy',linkedin:'meera-joshi',tags:['work'],birthday:'09-14',lastContact:'2025-06-05',notes:'Great Q2 campaign collab. Planning Q3 together.',meetings:[{id:1,date:'2025-06-05',title:'Campaign review',notes:'Q2 results 18% above target. She loved the creative direction.'}],warmth:80},
+  {id:8,name:'Ravi Shankar',role:'Angel Investor',email:'ravi.s@angels.in',phone:'+91 99009 11001',company:'Independent',linkedin:'ravi-shankar-inv',tags:['client','mentor'],birthday:'12-01',lastContact:'2025-05-30',notes:'Early believer. Monthly check-in cadence. Interested in tier-2 expansion.',meetings:[{id:1,date:'2025-05-30',title:'Monthly check-in',notes:'Shared updated deck. He is very interested in new vertical.'}],warmth:65},
+  {id:9,name:'Ishaan Gupta',role:'Software Engineer, Google',email:'ishaan.g@gmail.com',phone:'+91 99999 00001',company:'Google',linkedin:'ishaan-g',tags:['friend'],birthday:'07-04',lastContact:'2025-06-20',notes:'10-year friendship. Monthly catch-ups are a must. Ask about his London transfer.',meetings:[],warmth:99},
+  {id:10,name:'Neha Verma',role:'HR Business Partner, Infosys',email:'neha.v@infosys.com',phone:'+91 78000 45000',company:'Infosys',linkedin:'neha-verma',tags:['work'],birthday:'04-20',lastContact:'2025-01-05',notes:'Connected at Mumbai HR summit. Good for hiring referrals.',meetings:[],warmth:10},
+  {id:11,name:'Kabir Singh',role:'Content Creator',email:'kabir@youtube.com',phone:'+91 98400 99001',company:'Self-employed',linkedin:'kabir-singh-yt',tags:['friend'],birthday:'06-30',lastContact:'2025-06-15',notes:'3-video tech collab series agreed for August.',meetings:[{id:1,date:'2025-06-15',title:'Collab brainstorm',notes:'3-part tech series, August. I script, he produces.'}],warmth:75},
+  {id:12,name:'Divya Agarwal',role:'Therapist & Life Coach',email:'divya@mindful.co',phone:'+91 80000 12345',company:'Mindful Co.',linkedin:'divya-agarwal-t',tags:['mentor','friend'],birthday:'01-18',lastContact:'2025-06-12',notes:'Monthly check-ins. Invaluable perspective on decisions and relationships.',meetings:[{id:1,date:'2025-06-12',title:'Monthly session',notes:'Worked on communication patterns. Key: ask before advising.'}],warmth:88},
+];
+
+const SEED_REMINDERS = [
+  {id:1,contactId:2,title:'Follow up on funding deck',date:'2025-06-25',priority:'high',done:false},
+  {id:2,contactId:1,title:'Send course link she mentioned',date:'2025-06-24',priority:'high',done:false},
+  {id:3,contactId:6,title:'Send growth metrics update',date:'2025-06-28',priority:'med',done:false},
+  {id:4,contactId:8,title:'Monthly check-in call',date:'2025-06-30',priority:'low',done:false},
+  {id:5,contactId:11,title:'Confirm August collab dates',date:'2025-07-01',priority:'med',done:false},
+];
+
+const SEED_MEETINGS = [
+  {id:1,contactId:1,date:'2025-06-10',title:'Career advice chat',notes:'Discussed PM roadmap.'},
+  {id:2,contactId:2,date:'2025-06-01',title:'Startup idea session',notes:'Explored edtech vertical.'},
+  {id:3,contactId:7,date:'2025-06-05',title:'Campaign review',notes:'Q2 results above target.'},
+  {id:4,contactId:12,date:'2025-06-12',title:'Monthly session',notes:'Worked on communication patterns.'},
+  {id:5,contactId:11,date:'2025-06-15',title:'Collab brainstorm',notes:'3-video series planned for August.'},
+  {id:6,contactId:9,date:'2025-06-20',title:'Weekend hang',notes:'Caught up on life. He is considering London move.'},
+];
+
+/* ---- STATE ---- */
+const LS = { c:'bonds_contacts', r:'bonds_reminders', m:'bonds_meetings' };
+
+function load(key, seed) {
+  try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : seed; }
+  catch { return seed; }
+}
+function save(key, val) { try { localStorage.setItem(key, JSON.stringify(val)); } catch {} }
+
+let DB = {
+  contacts:  load(LS.c, SEED_CONTACTS),
+  reminders: load(LS.r, SEED_REMINDERS),
+  meetings:  load(LS.m, SEED_MEETINGS),
+};
+
+let UI = { filter: 'all', search: '', panel: 'dashboard' };
+
+/* ---- HELPERS ---- */
+const COLORS = [
+  {bg:'#EEEDFE',fg:'#3C3489'},{bg:'#E1F5EE',fg:'#085041'},{bg:'#FAECE7',fg:'#712B13'},
+  {bg:'#FBEAF0',fg:'#72243E'},{bg:'#E6F1FB',fg:'#0C447C'},{bg:'#FAEEDA',fg:'#633806'},
+  {bg:'#EAF3DE',fg:'#27500A'},{bg:'#FCEBEB',fg:'#791F1F'},
+];
+const col  = id => COLORS[id % COLORS.length];
+const ini  = n => n.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+const esc  = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const today = () => new Date().toISOString().split('T')[0];
+const fmtDate = (iso, opts={}) => iso ? new Date(iso+'T00:00:00').toLocaleDateString('en-IN',{month:'short',day:'numeric',...opts}) : 'Unknown';
+const fmtLong = iso => fmtDate(iso,{weekday:'short',month:'long',day:'numeric',year:'numeric'});
+const fmtBday = mmdd => mmdd ? new Date('2000-'+mmdd).toLocaleDateString('en-IN',{month:'long',day:'numeric'}) : 'Not set';
+const maxId   = arr => arr.length ? Math.max(...arr.map(x=>x.id))+1 : 1;
+const getC    = id => DB.contacts.find(c=>c.id===id)||null;
+
+function daysUntilBday(mmdd) {
+  if (!mmdd) return 999;
+  const now = new Date();
+  const [m,d] = mmdd.split('-').map(Number);
+  let next = new Date(now.getFullYear(), m-1, d);
+  if (next < now) next.setFullYear(now.getFullYear()+1);
+  return Math.ceil((next - now) / 86400000);
+}
+
+function warmth(score) {
+  if (score >= 70) return { label:'Active',        cls:'hot',  bar:'#1D9E75' };
+  if (score >= 35) return { label:'Warm',          cls:'warm', bar:'#EF9F27' };
+  return               { label:'Needs a nudge', cls:'cold', bar:'#E24B4A' };
+}
+
+function avEl(id, size=44) {
+  const c = col(id), n = getC(id) || { name:'?' };
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${c.bg};color:${c.fg};display:flex;align-items:center;justify-content:center;font-size:${Math.round(size*.33)}px;font-weight:700;flex-shrink:0">${ini(n.name)}</div>`;
+}
+
+/* ---- PERSIST ---- */
+function persist() {
+  save(LS.c, DB.contacts);
+  save(LS.r, DB.reminders);
+  save(LS.m, DB.meetings);
+}
+
+/* ---- NAVIGATION ---- */
+const TITLES = {
+  dashboard:'Dashboard', contacts:'Contacts', followups:'Follow-up suggestions',
+  reminders:'Reminders', birthdays:'Birthdays', meetings:'Meeting history',
+  insights:'Networking insights', detail:'Contact profile'
+};
+
+function goPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  document.getElementById('topbar-title').textContent = TITLES[id] || id;
+  document.querySelector(`.nav-btn[data-panel="${id}"]`)?.classList.add('active');
+  UI.panel = id;
+  ({
+    dashboard: renderDashboard,
+    contacts:  renderContacts,
+    followups: renderFollowups,
+    reminders: renderReminders,
+    birthdays: renderBirthdays,
+    meetings:  renderMeetings,
+    insights:  renderInsights,
+  }[id] || (() => {}))();
+  updateBadges();
+}
+
+function showPanel(id) { goPanel(id); }
+
+/* ---- SEARCH ---- */
+function onSearch(v) {
+  UI.search = v.toLowerCase();
+  if (UI.panel === 'contacts') renderContacts();
+}
+
+/* ---- BADGES ---- */
+function updateBadges() {
+  document.getElementById('nb-contacts').textContent  = DB.contacts.length;
+  document.getElementById('nb-reminders').textContent = DB.reminders.filter(r=>!r.done).length;
+  document.getElementById('nb-followups').textContent = DB.contacts.filter(c=>c.warmth<50).length;
+}
+
+/* ---- TOAST ---- */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+/* ---- MODAL ---- */
+function openModal(html) {
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('modal-bd').classList.add('open');
+}
+function closeModal() { document.getElementById('modal-bd').classList.remove('open'); }
+
+/* ============================================================
+   RENDER — DASHBOARD
+   ============================================================ */
+function renderDashboard() {
+  const total  = DB.contacts.length;
+  const active = DB.contacts.filter(c=>c.warmth>=70).length;
+  const cold   = DB.contacts.filter(c=>c.warmth<30).length;
+  const bdays  = DB.contacts.filter(c=>c.birthday && daysUntilBday(c.birthday)<=30).length;
+  document.getElementById('s-total').textContent  = total;
+  document.getElementById('s-active').textContent = active;
+  document.getElementById('s-cold').textContent   = cold;
+  document.getElementById('s-bdays').textContent  = bdays;
+
+  // Follow-ups widget
+  const fups = DB.contacts.filter(c=>c.warmth<50).sort((a,b)=>a.warmth-b.warmth).slice(0,3);
+  document.getElementById('dash-followups').innerHTML = fups.length
+    ? fups.map(c => {
+        const cv = col(c.id);
+        return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:.5px solid var(--border1);cursor:pointer" onclick="openDetail(${c.id})">
+          <div style="width:32px;height:32px;border-radius:50%;background:${cv.bg};color:${cv.fg};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${ini(c.name)}</div>
+          <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;color:var(--tx1)">${esc(c.name)}</div><div style="font-size:11px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(c.role)}</div></div>
+          <span class="warmth-pill ${warmth(c.warmth).cls}">${warmth(c.warmth).label}</span>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><span class="empty-icon">🎉</span><p>All relationships are warm!</p></div>';
+
+  // Reminders widget
+  const rems = DB.reminders.filter(r=>!r.done).slice(0,4);
+  document.getElementById('dash-reminders').innerHTML = rems.length
+    ? rems.map(r => {
+        const c = getC(r.contactId);
+        const dotCol = r.priority==='high'?'#E24B4A':r.priority==='med'?'#EF9F27':'#1D9E75';
+        return `<div class="reminder-item">
+          <div class="r-dot" style="background:${dotCol}"></div>
+          <div class="r-info"><div class="r-title">${esc(r.title)}</div><div class="r-meta">${c?esc(c.name):''}</div></div>
+          <div class="r-date">${fmtDate(r.date)}</div>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><span class="empty-icon">✅</span><p>No pending reminders!</p></div>';
+
+  // Timeline
+  const recent = [...DB.meetings].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+  document.getElementById('dash-timeline').innerHTML = recent.length
+    ? recent.map(m => {
+        const c = getC(m.contactId);
+        const cv = c ? col(c.id) : {bg:'#F1EFE8',fg:'#444441'};
+        return `<div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-card" onclick="${c?`openDetail(${c.id})`:''}">
+            <div class="tl-who">
+              <div class="tl-who-av" style="background:${cv.bg};color:${cv.fg}">${c?ini(c.name):'?'}</div>
+              <div class="tl-title">${esc(m.title)}</div>
+            </div>
+            ${c?`<div class="tl-sub">${esc(c.name)} · ${esc(c.role)}</div>`:''}
+            ${m.notes?`<div class="tl-notes">${esc(m.notes)}</div>`:''}
+            <div class="tl-time">${fmtDate(m.date,{month:'long',day:'numeric',year:'numeric'})}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:13px;color:var(--tx3);padding:10px 0">No meetings logged yet.</div>';
+
+  // Birthdays
+  const bdayList = DB.contacts.filter(c=>c.birthday)
+    .map(c=>({...c,days:daysUntilBday(c.birthday)}))
+    .sort((a,b)=>a.days-b.days).slice(0,5);
+  document.getElementById('dash-birthdays').innerHTML = bdayList.length
+    ? bdayList.map(c => {
+        const cv = col(c.id);
+        const cls = c.days<=7?'soon':c.days<=30?'upcoming':'far';
+        return `<div class="bday-item" onclick="openDetail(${c.id})">
+          <div class="bday-avatar" style="background:${cv.bg};color:${cv.fg}">${ini(c.name)}</div>
+          <div class="bday-info"><div class="bday-name">${esc(c.name)}</div><div class="bday-date">${fmtBday(c.birthday)}</div></div>
+          <span class="bday-badge ${cls}">${c.days===0?'Today!':c.days+'d'}</span>
+        </div>`;
+      }).join('')
+    : '<div style="font-size:13px;color:var(--tx3);padding:10px 0">No birthdays saved yet.</div>';
+}
+
+/* ============================================================
+   RENDER — CONTACTS
+   ============================================================ */
+function renderContacts() {
+  let list = DB.contacts;
+  if (UI.filter !== 'all') list = list.filter(c=>c.tags.includes(UI.filter));
+  if (UI.search) list = list.filter(c=>
+    c.name.toLowerCase().includes(UI.search) ||
+    c.role.toLowerCase().includes(UI.search) ||
+    (c.company||'').toLowerCase().includes(UI.search)
+  );
+  const grid = document.getElementById('contacts-grid');
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><span class="empty-icon">🔍</span><p>No contacts found.</p></div>';
+    return;
+  }
+  grid.innerHTML = list.map(c => {
+    const cv = col(c.id), w = warmth(c.warmth);
+    return `<div class="contact-card ${w.cls}" onclick="openDetail(${c.id})">
+      <div class="c-avatar" style="background:${cv.bg};color:${cv.fg}">${ini(c.name)}</div>
+      <div class="c-name">${esc(c.name)}</div>
+      <div class="c-role">${esc(c.role)}</div>
+      <div class="tags-row">${c.tags.map(t=>`<span class="tag tag-${esc(t)}">${esc(t)}</span>`).join('')}</div>
+      <div class="c-footer">
+        <span>${c.lastContact?fmtDate(c.lastContact):'Never'}</span>
+        <span class="warmth-pill ${w.cls}">${w.label}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setFilter(f, btn) {
+  UI.filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderContacts();
+}
+
+/* ============================================================
+   RENDER — CONTACT DETAIL
+   ============================================================ */
+function openDetail(id) {
+  const c = getC(id);
+  if (!c) return;
+  const cv = col(c.id), w = warmth(c.warmth);
+  const cReminders = DB.reminders.filter(r=>r.contactId===c.id&&!r.done);
+  const mList = (c.meetings||[]).slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-card">
+      <div class="detail-hdr">
+        <div class="detail-av" style="background:${cv.bg};color:${cv.fg}">${ini(c.name)}</div>
+        <div class="detail-hdr-info">
+          <div class="detail-name">${esc(c.name)}</div>
+          <div class="detail-role">${esc(c.role)}${c.company?` · ${esc(c.company)}`:''}</div>
+          <div class="tags-row">${c.tags.map(t=>`<span class="tag tag-${esc(t)}">${esc(t)}</span>`).join('')}</div>
+        </div>
+        <div class="detail-hdr-actions">
+          <button class="btn-icon" onclick="openEditContact(${c.id})">
+            <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Edit
+          </button>
+          <button class="btn-icon" onclick="openAddReminder(${c.id})">
+            <svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            Remind
+          </button>
+          <button class="btn-icon" onclick="openAddMeeting(${c.id})">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+            Log meeting
+          </button>
+          <button class="btn-danger" onclick="deleteContact(${c.id})">
+            <svg viewBox="0 0 24 24" style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <div class="detail-body">
+        <!-- LEFT COLUMN -->
+        <div>
+          <div class="d-section">
+            <div class="d-section-title">Contact info</div>
+            ${c.email?`<div class="info-row"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></div>`:''}
+            ${c.phone?`<div class="info-row"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.56 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.18 6.18l.88-.88a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${esc(c.phone)}</div>`:''}
+            <div class="info-row"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>${fmtBday(c.birthday)}</div>
+            ${c.linkedin?`<div class="info-row"><svg viewBox="0 0 24 24"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg><a href="https://linkedin.com/in/${esc(c.linkedin)}" target="_blank">linkedin.com/in/${esc(c.linkedin)}</a></div>`:''}
+          </div>
+
+          <div class="d-section">
+            <div class="d-section-title">Relationship warmth</div>
+            <div class="w-bar-label">
+              <span style="font-weight:500;color:var(--tx2)">Strength score</span>
+              <span style="color:${w.bar};font-weight:700">${w.label}</span>
+            </div>
+            <div class="w-bar"><div class="w-fill" style="width:${c.warmth}%;background:${w.bar}"></div></div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:4px">Last contact: ${c.lastContact?fmtDate(c.lastContact,{month:'long',day:'numeric',year:'numeric'}):'Unknown'}</div>
+          </div>
+
+          <div class="d-section">
+            <div class="d-section-title">Notes</div>
+            <div class="notes-text">${esc(c.notes||'No notes added.')}</div>
+          </div>
+
+          <div class="d-section">
+            <div class="d-section-title">Active reminders (${cReminders.length})</div>
+            ${cReminders.length
+              ? cReminders.map(r=>`<div class="reminder-item">
+                  <div class="r-dot" style="background:${r.priority==='high'?'#E24B4A':r.priority==='med'?'#EF9F27':'#1D9E75'}"></div>
+                  <div class="r-info"><div class="r-title">${esc(r.title)}</div><div class="r-meta">${fmtDate(r.date,{month:'short',day:'numeric',year:'numeric'})}</div></div>
+                  <button class="btn-icon" onclick="completeReminder(${r.id})">✓</button>
+                </div>`).join('')
+              : '<div style="font-size:13px;color:var(--tx3);padding:8px 0">No active reminders.</div>'}
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div>
+          <div class="d-section">
+            <div class="d-section-title">Meeting history (${mList.length})</div>
+            ${mList.length
+              ? mList.map(m=>`<div class="meeting-entry">
+                  <div class="me-title">${esc(m.title)}</div>
+                  <div class="me-date">${fmtDate(m.date,{weekday:'short',month:'long',day:'numeric',year:'numeric'})}</div>
+                  ${m.notes?`<div class="me-notes">${esc(m.notes)}</div>`:''}
+                </div>`).join('')
+              : '<div style="font-size:13px;color:var(--tx3);padding:8px 0">No meetings logged yet.</div>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  goPanel('detail');
+  // Override back button to return to contacts
+  document.querySelector('.back-btn').onclick = () => goPanel('contacts');
+}
+
+/* ============================================================
+   RENDER — FOLLOW-UPS
+   ============================================================ */
+function renderFollowups() {
+  const list = DB.contacts.filter(c=>c.warmth<50).sort((a,b)=>a.warmth-b.warmth);
+  document.getElementById('followups-list').innerHTML = list.length
+    ? list.map(c => {
+        const cv = col(c.id);
+        const cls = c.warmth<20?'urgent':c.warmth<35?'medium':'mild';
+        const reason = c.warmth<20
+          ? "Haven't connected in a while — they'd love to hear from you."
+          : c.warmth<35
+          ? 'Relationship cooling — a quick check-in would mean a lot.'
+          : 'A friendly nudge keeps this connection warm.';
+        return `<div class="fu-item ${cls}">
+          <div class="fu-avatar" style="background:${cv.bg};color:${cv.fg}">${ini(c.name)}</div>
+          <div class="fu-info">
+            <div class="fu-name">${esc(c.name)} <span style="font-size:11px;font-weight:400;color:var(--tx2)">· ${esc(c.role)}</span></div>
+            <div class="fu-reason">${reason}</div>
+          </div>
+          <div class="fu-actions">
+            <button class="btn-icon" onclick="markContacted(${c.id})" title="Mark as contacted">✓ Touched</button>
+            <button class="btn-icon" onclick="openDetail(${c.id})" title="View profile">👤</button>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><span class="empty-icon">🌟</span><p>All relationships look great! Keep it up.</p></div>';
+}
+
+function markContacted(id) {
+  const c = getC(id);
+  if (!c) return;
+  c.warmth = Math.min(100, c.warmth + 25);
+  c.lastContact = today();
+  persist();
+  renderFollowups();
+  updateBadges();
+  showToast(`Marked ${c.name} as contacted! 🎉`);
+}
+
+/* ============================================================
+   RENDER — REMINDERS
+   ============================================================ */
+function renderReminders() {
+  const pending = DB.reminders.filter(r=>!r.done);
+  const done    = DB.reminders.filter(r=>r.done);
+  let html = '';
+
+  if (pending.length) {
+    html += `<div class="section-label">Pending (${pending.length})</div>`;
+    html += pending.map(r => {
+      const c = getC(r.contactId);
+      const dotCol = r.priority==='high'?'#E24B4A':r.priority==='med'?'#EF9F27':'#1D9E75';
+      const prioLabel = r.priority==='high'?'High':r.priority==='med'?'Medium':'Low';
+      return `<div class="reminder-item">
+        <div class="r-dot" style="background:${dotCol}"></div>
+        <div class="r-info">
+          <div class="r-title">${esc(r.title)}</div>
+          <div class="r-meta">${c?esc(c.name):''} · <span style="color:${dotCol};font-weight:700">${prioLabel}</span></div>
+        </div>
+        <div class="r-date">${fmtDate(r.date)}</div>
+        <button class="btn-icon" onclick="completeReminder(${r.id})" style="margin-left:8px" title="Mark done">✓</button>
+        <button class="btn-icon" onclick="deleteReminder(${r.id})" title="Delete">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  if (done.length) {
+    html += `<div class="section-label" style="margin-top:18px">Completed (${done.length})</div>`;
+    html += done.map(r => {
+      const c = getC(r.contactId);
+      return `<div class="reminder-item r-done">
+        <div class="r-dot" style="background:#B4B2A9"></div>
+        <div class="r-info">
+          <div class="r-title">${esc(r.title)}</div>
+          <div class="r-meta">${c?esc(c.name):''}</div>
+        </div>
+        <button class="btn-danger" onclick="deleteReminder(${r.id})" title="Remove">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  document.getElementById('reminders-list').innerHTML = html
+    || '<div class="empty"><span class="empty-icon">🔔</span><p>No reminders yet. Add one!</p></div>';
+}
+
+function completeReminder(id) {
+  const r = DB.reminders.find(r=>r.id===id);
+  if (r) { r.done = true; persist(); }
+  renderReminders();
+  updateBadges();
+  showToast('Reminder completed! ✓');
+}
+
+function deleteReminder(id) {
+  DB.reminders = DB.reminders.filter(r=>r.id!==id);
+  persist();
+  renderReminders();
+  updateBadges();
+  showToast('Reminder deleted.');
+}
+
+/* ============================================================
+   RENDER — BIRTHDAYS
+   ============================================================ */
+function renderBirthdays() {
+  const list = DB.contacts.filter(c=>c.birthday)
+    .map(c=>({...c,days:daysUntilBday(c.birthday)}))
+    .sort((a,b)=>a.days-b.days);
+  document.getElementById('birthdays-list').innerHTML = list.length
+    ? list.map(c => {
+        const cv = col(c.id);
+        const cls = c.days<=7?'soon':c.days<=30?'upcoming':'far';
+        return `<div class="bday-item" onclick="openDetail(${c.id})">
+          <div class="bday-avatar" style="background:${cv.bg};color:${cv.fg}">${ini(c.name)}</div>
+          <div class="bday-info">
+            <div class="bday-name">${esc(c.name)}</div>
+            <div class="bday-date">${esc(c.role)}</div>
+          </div>
+          <span style="font-size:12px;color:var(--tx2);margin-right:8px">${fmtBday(c.birthday)}</span>
+          <span class="bday-badge ${cls}">${c.days===0?'🎂 Today!':c.days+'d away'}</span>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><span class="empty-icon">🎂</span><p>No birthdays saved. Add them via contact profiles.</p></div>';
+}
+
+/* ============================================================
+   RENDER — MEETINGS
+   ============================================================ */
+function renderMeetings() {
+  const sorted = [...DB.meetings].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  document.getElementById('meetings-list').innerHTML = sorted.length
+    ? sorted.map(m => {
+        const c = getC(m.contactId);
+        const cv = c ? col(c.id) : {bg:'#F1EFE8',fg:'#444441'};
+        return `<div class="tl-item">
+          <div class="tl-dot"></div>
+          <div class="tl-card" onclick="${c?`openDetail(${c.id})`:''}">
+            <div class="tl-who">
+              <div class="tl-who-av" style="background:${cv.bg};color:${cv.fg}">${c?ini(c.name):'?'}</div>
+              <div class="tl-title">${esc(m.title)}</div>
+            </div>
+            ${c?`<div class="tl-sub">${esc(c.name)} · ${esc(c.role)}</div>`:''}
+            ${m.notes?`<div class="tl-notes">${esc(m.notes)}</div>`:''}
+            <div class="tl-time">${fmtLong(m.date)}</div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><span class="empty-icon">📅</span><p>No meetings logged yet.</p></div>';
+}
+
+/* ============================================================
+   RENDER — INSIGHTS
+   ============================================================ */
+function renderInsights() {
+  const total  = DB.contacts.length || 1;
+  const hot    = DB.contacts.filter(c=>c.warmth>=70).length;
+  const warm   = DB.contacts.filter(c=>c.warmth>=35&&c.warmth<70).length;
+  const cold   = DB.contacts.filter(c=>c.warmth<35).length;
+  const tagCt  = {};
+  DB.contacts.forEach(c=>c.tags.forEach(t=>{tagCt[t]=(tagCt[t]||0)+1}));
+  const topTag = Object.entries(tagCt).sort((a,b)=>b[1]-a[1])[0] || ['none',0];
+  const avgW   = DB.contacts.length ? Math.round(DB.contacts.reduce((s,c)=>s+c.warmth,0)/DB.contacts.length) : 0;
+  const topC   = [...DB.contacts].sort((a,b)=>b.warmth-a.warmth)[0];
+  const coldC  = [...DB.contacts].sort((a,b)=>a.warmth-b.warmth)[0];
+
+  document.getElementById('insights-grid').innerHTML = `
+    <div class="insight-card"><div class="insight-icon">🔥</div><div class="insight-title">Active relationships</div><div class="insight-body"><strong>${hot}</strong> of ${total} contacts are highly engaged (warmth ≥ 70). These are your strongest bonds.</div></div>
+    <div class="insight-card"><div class="insight-icon">🌡️</div><div class="insight-title">Warming up</div><div class="insight-body"><strong>${warm}</strong> contacts are in the warming stage. A quick check-in could boost these connections significantly.</div></div>
+    <div class="insight-card"><div class="insight-icon">❄️</div><div class="insight-title">Going cold</div><div class="insight-body"><strong>${cold}</strong> relationships need attention. Don't let them drift — reach out this week.</div></div>
+    <div class="insight-card"><div class="insight-icon">🌐</div><div class="insight-title">Network balance</div><div class="insight-body">Your network leans <strong>${topTag[0]}</strong> (${topTag[1]} contacts). Consider diversifying your connections.</div></div>
+    <div class="insight-card"><div class="insight-icon">⭐</div><div class="insight-title">Top relationship</div><div class="insight-body">${topC?`<strong>${esc(topC.name)}</strong> is your warmest connection at ${topC.warmth}/100. A true anchor relationship.`:'Add contacts to see insights.'}</div></div>
+    <div class="insight-card"><div class="insight-icon">📊</div><div class="insight-title">Network health score</div><div class="insight-body">Average warmth is <strong>${avgW}/100</strong> across all ${total} contacts. ${avgW>=60?'Great shape!':avgW>=40?'Room to grow.':'Time to reconnect!'}</div></div>
+  `;
+
+  const sorted = [...DB.contacts].sort((a,b)=>b.warmth-a.warmth);
+  document.getElementById('health-list').innerHTML = sorted.length
+    ? sorted.map(c => {
+        const cv = col(c.id), w = warmth(c.warmth);
+        return `<div class="health-row" onclick="openDetail(${c.id})">
+          <div class="h-avatar" style="background:${cv.bg};color:${cv.fg}">${ini(c.name)}</div>
+          <div class="h-info">
+            <div class="h-name">
+              <span>${esc(c.name)}</span>
+              <span class="h-label" style="color:${w.bar}">${w.label}</span>
+            </div>
+            <div class="h-bar"><div class="h-fill" style="width:${c.warmth}%;background:${w.bar}"></div></div>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div class="empty"><span class="empty-icon">📈</span><p>Add contacts to see relationship health.</p></div>';
+}
+
+/* ============================================================
+   MODALS — ADD / EDIT CONTACT
+   ============================================================ */
+function openAddContact() {
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">Add new contact</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full name *</label><input class="form-input" id="f-name" placeholder="e.g. Priya Sharma" /></div>
+      <div class="form-group"><label class="form-label">Role / Title</label><input class="form-input" id="f-role" placeholder="e.g. Senior PM at Zomato" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" type="email" placeholder="email@example.com" /></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="f-phone" placeholder="+91 9800000000" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Company</label><input class="form-input" id="f-company" placeholder="Company name" /></div>
+      <div class="form-group"><label class="form-label">Birthday (MM-DD)</label><input class="form-input" id="f-bday" placeholder="07-22" maxlength="5" /></div>
+    </div>
+    <div class="form-group"><label class="form-label">LinkedIn handle</label><input class="form-input" id="f-linkedin" placeholder="username (no URL needed)" /></div>
+    <div class="form-group">
+      <label class="form-label">Relationship type (select all that apply)</label>
+      <div class="tag-checks">
+        ${['friend','work','family','mentor','client'].map(t=>`
+          <input type="checkbox" class="tag-check" id="tc-${t}" value="${t}" />
+          <label class="tag-check-label" for="tc-${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</label>
+        `).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-notes" placeholder="How you met, things to remember, context…"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveContact()">Save contact</button>
+    </div>
+  `);
+}
+
+function openEditContact(id) {
+  const c = getC(id);
+  if (!c) return;
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">Edit contact</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full name *</label><input class="form-input" id="f-name" value="${esc(c.name)}" /></div>
+      <div class="form-group"><label class="form-label">Role / Title</label><input class="form-input" id="f-role" value="${esc(c.role)}" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="f-email" type="email" value="${esc(c.email||'')}" /></div>
+      <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="f-phone" value="${esc(c.phone||'')}" /></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Company</label><input class="form-input" id="f-company" value="${esc(c.company||'')}" /></div>
+      <div class="form-group"><label class="form-label">Birthday (MM-DD)</label><input class="form-input" id="f-bday" value="${esc(c.birthday||'')}" maxlength="5" /></div>
+    </div>
+    <div class="form-group"><label class="form-label">LinkedIn handle</label><input class="form-input" id="f-linkedin" value="${esc(c.linkedin||'')}" /></div>
+    <div class="form-group">
+      <label class="form-label">Relationship type</label>
+      <div class="tag-checks">
+        ${['friend','work','family','mentor','client'].map(t=>`
+          <input type="checkbox" class="tag-check" id="tc-${t}" value="${t}" ${c.tags.includes(t)?'checked':''} />
+          <label class="tag-check-label" for="tc-${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</label>
+        `).join('')}
+      </div>
+    </div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-textarea" id="f-notes">${esc(c.notes||'')}</textarea></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveContact(${id})">Save changes</button>
+    </div>
+  `);
+}
+
+function saveContact(editId) {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showToast('⚠️ Name is required!'); return; }
+  const tags = [...document.querySelectorAll('.tag-check:checked')].map(el=>el.value);
+  const data = {
+    name,
+    role:     document.getElementById('f-role').value.trim(),
+    email:    document.getElementById('f-email').value.trim(),
+    phone:    document.getElementById('f-phone').value.trim(),
+    company:  document.getElementById('f-company').value.trim(),
+    birthday: document.getElementById('f-bday').value.trim(),
+    linkedin: document.getElementById('f-linkedin').value.trim(),
+    tags:     tags.length ? tags : ['friend'],
+    notes:    document.getElementById('f-notes').value.trim(),
+  };
+  if (editId) {
+    const c = getC(editId);
+    Object.assign(c, data);
+    showToast(`${name} updated! ✓`);
+  } else {
+    const id = maxId(DB.contacts);
+    DB.contacts.push({ ...data, id, meetings: [], warmth: 50, lastContact: null });
+    showToast(`${name} added to your network! 🎉`);
+  }
+  persist();
+  closeModal();
+  renderContacts();
+  updateBadges();
+}
+
+function deleteContact(id) {
+  const c = getC(id);
+  if (!c) return;
+  if (!confirm(`Delete ${c.name}? This cannot be undone.`)) return;
+  DB.contacts  = DB.contacts.filter(x=>x.id!==id);
+  DB.reminders = DB.reminders.filter(r=>r.contactId!==id);
+  DB.meetings  = DB.meetings.filter(m=>m.contactId!==id);
+  persist();
+  goPanel('contacts');
+  updateBadges();
+  showToast(`${c.name} deleted.`);
+}
+
+/* ============================================================
+   MODALS — ADD REMINDER
+   ============================================================ */
+function openAddReminder(preContactId) {
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">Set a reminder</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact</label>
+      <select class="form-select" id="r-contact">
+        ${DB.contacts.map(c=>`<option value="${c.id}" ${c.id===preContactId?'selected':''}>${esc(c.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Reminder *</label><input class="form-input" id="r-title" placeholder="e.g. Send project update" /></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Due date</label><input class="form-input" id="r-date" type="date" value="${today()}" /></div>
+      <div class="form-group">
+        <label class="form-label">Priority</label>
+        <select class="form-select" id="r-priority">
+          <option value="high">🔴 High</option>
+          <option value="med" selected>🟡 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveReminder()">Set reminder</button>
+    </div>
+  `);
+}
+
+function saveReminder() {
+  const title = document.getElementById('r-title').value.trim();
+  if (!title) { showToast('⚠️ Reminder text is required!'); return; }
+  DB.reminders.push({
+    id:        maxId(DB.reminders),
+    contactId: parseInt(document.getElementById('r-contact').value),
+    title,
+    date:      document.getElementById('r-date').value,
+    priority:  document.getElementById('r-priority').value,
+    done:      false,
+  });
+  persist();
+  closeModal();
+  renderReminders();
+  updateBadges();
+  showToast('Reminder set! 🔔');
+}
+
+/* ============================================================
+   MODALS — ADD MEETING
+   ============================================================ */
+function openAddMeeting(preContactId) {
+  openModal(`
+    <div class="modal-header">
+      <div class="modal-title">Log a meeting</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Contact</label>
+      <select class="form-select" id="m-contact">
+        ${DB.contacts.map(c=>`<option value="${c.id}" ${c.id===preContactId?'selected':''}>${esc(c.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Meeting title *</label><input class="form-input" id="m-title" placeholder="e.g. Coffee catch-up" /></div>
+    <div class="form-group"><label class="form-label">Date</label><input class="form-input" id="m-date" type="date" value="${today()}" /></div>
+    <div class="form-group"><label class="form-label">Notes / takeaways</label><textarea class="form-textarea" id="m-notes" placeholder="What did you discuss? Any follow-ups to remember?"></textarea></div>
+    <div class="modal-footer">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveMeeting()">Log meeting</button>
+    </div>
+  `);
+}
+
+function saveMeeting() {
+  const title = document.getElementById('m-title').value.trim();
+  if (!title) { showToast('⚠️ Meeting title is required!'); return; }
+  const cId   = parseInt(document.getElementById('m-contact').value);
+  const date  = document.getElementById('m-date').value;
+  const notes = document.getElementById('m-notes').value.trim();
+  const id    = maxId(DB.meetings);
+  DB.meetings.push({ id, contactId: cId, date, title, notes });
+  const c = getC(cId);
+  if (c) {
+    c.meetings = c.meetings || [];
+    c.meetings.push({ id, date, title, notes });
+    c.lastContact = date;
+    c.warmth = Math.min(100, c.warmth + 15);
+  }
+  persist();
+  closeModal();
+  renderMeetings();
+  renderDashboard();
+  updateBadges();
+  showToast('Meeting logged! 📅');
+}
+
+/* ============================================================
+   WIRE UP NAV BUTTONS
+   ============================================================ */
+document.querySelectorAll('.nav-btn[data-panel]').forEach(btn => {
+  btn.addEventListener('click', () => goPanel(btn.dataset.panel));
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+renderDashboard();
+updateBadges();
+</script>
+</body>
+</html>
